@@ -1,253 +1,414 @@
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <vector>
 #include <fstream>
+#include <cstdio>
 #include <algorithm>
 
 using namespace std;
 
-int idIterator;
+int iteratorUzytkownikow;
+int iteratorAdresatow;
+int idZalogowanegoUzytkownika = -1;
 
-struct Contact {
+string nazwaPlikuAdresowego = "Adresaci.txt";
+string nazwaPlikuUzytkownikow = "Uzytkownicy.txt";
+string nazwaPlikuTymczasowego = "Tymczasowy.txt";
+
+struct Uzytkownik{
     int id;
-    string firstName;
-    string lastName;
-    string email;
-    string phoneNumber;
-    string address;
+    string nazwa, haslo;
 };
 
-int findMaxId(vector<Contact> contacts) {
-    int iterator;
-    if (contacts.size() > 0) {
-        iterator = contacts[0].id;
-    } else {
-        return 1;
-    }
-    for (int i = 0; i < contacts.size(); i++) {
-        if (iterator < contacts[i].id) iterator = contacts[i].id;
-    }
-    return iterator + 1;
-}
+struct Kontakt {
+    int id;
+    int idUzytkownika;
+    string imie;
+    string nazwisko;
+    string email;
+    string numer;
+    string adres;
+};
 
-void saveContactToFile(Contact contact) {
-    fstream fileWriter("ksiazkaAdresowa.txt", ios::in | ios::out | ios::app);
+void dopiszKontaktDoPliku(Kontakt kontakt) {
+    fstream fileWriter(nazwaPlikuAdresowego, ios::in | ios::out | ios::app);
 
     if (fileWriter.is_open()) {
-        fileWriter << to_string(contact.id) << '|';
-        fileWriter << contact.firstName << '|';
-        fileWriter << contact.lastName << '|';
-        fileWriter << contact.email << '|';
-        fileWriter << contact.phoneNumber << '|';
-        fileWriter << contact.address << '|' << endl;
+        fileWriter << to_string(kontakt.id) << '|';
+        fileWriter << to_string(kontakt.idUzytkownika) << '|';
+        fileWriter << kontakt.imie << '|';
+        fileWriter << kontakt.nazwisko << '|';
+        fileWriter << kontakt.email << '|';
+        fileWriter << kontakt.numer << '|';
+        fileWriter << kontakt.adres << '|' << endl;
         fileWriter.close();
     } else cout << "Pliku nie udalo sie odczytac.";
 }
 
-void showContacts(vector<Contact> contacts) {
+void wyswietlKontakty(vector<Kontakt> kontakty) {
     cout << endl << "LISTA WSZYSTKICH KONTAKTOW" << endl << endl;
-    for (int i = 0; i < contacts.size(); i++) {
-        cout << endl << "Id: " << contacts[i].id;
-        cout << endl << "Imie: " << contacts[i].firstName;
-        cout << endl << "Nazwisko: " << contacts[i].lastName;
-        cout << endl << "Email: " << contacts[i].email;
-        cout << endl << "Numer telefonu: " << contacts[i].phoneNumber;
-        cout << endl << "Adres zamieszkania: " << contacts[i].address << endl;
+    for (int i = 0; i < kontakty.size(); i++) {
+        cout << endl << "Id: " << kontakty[i].id;
+        cout << endl << "Imie: " << kontakty[i].imie;
+        cout << endl << "Nazwisko: " << kontakty[i].nazwisko;
+        cout << endl << "Email: " << kontakty[i].email;
+        cout << endl << "Numer telefonu: " << kontakty[i].numer;
+        cout << endl << "Adres zamieszkania: " << kontakty[i].adres << endl;
     }
     cout << endl;
 }
 
-void createContact(vector<Contact> &contacts) {
+void stworzKontakt(vector<Kontakt> &kontakty) {
 
-    Contact contact;
+    Kontakt kontakt;
 
     cout << endl << "ZAPISZ NOWY KONTAKT" << endl << endl;
     cout << "Wpisz imie: ";
-    cin >> contact.firstName;
+    cin >> kontakt.imie;
     cout << "Wpisz nazwisko: ";
-    cin >> contact.lastName;
+    cin >> kontakt.nazwisko;
     cout << "Wpisz adres email: ";
-    cin >> contact.email;
+    cin >> kontakt.email;
     cout << "Wpisz numer telefonu: ";
     cin.sync();
-    getline(cin, contact.phoneNumber);
+    getline(cin, kontakt.numer);
     cout << "Wpisz adres zamieszkania: ";
     cin.sync();
-    getline(cin, contact.address);
+    getline(cin, kontakt.adres);
 
-    contact.id = idIterator;
-    idIterator++;
-    contacts.push_back(contact);
+    kontakt.id = iteratorAdresatow;
+    kontakt.idUzytkownika = idZalogowanegoUzytkownika;
 
-    saveContactToFile(contact);
+    iteratorAdresatow++;
+    kontakty.push_back(kontakt);
+    dopiszKontaktDoPliku(kontakt);
 
     system("cls");
 }
 
-void findWithFirstName(vector<Contact> contacts) {
-    string firstName;
+void znajdzImie(vector<Kontakt> kontakty) {
+    string imie;
 
     cout << endl << "WYSZUKIWANIE KONTAKTOW PO IMIENIU" << endl << endl;
     cout << "Wpisz imie kontaktu, ktorego szukasz: ";
-    cin >> firstName;
+    cin >> imie;
 
     system("cls");
-    cout << endl << "KONTAKTY ZAWIERAJACE PODANE IMIE: " << firstName << endl << endl;
-    for (int i = 0; i < contacts.size(); i++) {
-        if (contacts[i].firstName == firstName) {
-            cout << endl << "Id: " << contacts[i].id;
-            cout << endl << "Imie: " << contacts[i].firstName;
-            cout << endl << "Nazwisko: " << contacts[i].lastName;
-            cout << endl << "Email: " << contacts[i].email;
-            cout << endl << "Numer telefonu: " << contacts[i].phoneNumber;
-            cout << endl << "Adres zamieszkania: " << contacts[i].address << endl;
+    cout << endl << "KONTAKTY ZAWIERAJACE PODANE IMIE: " << imie << endl << endl;
+    for (int i = 0; i < kontakty.size(); i++) {
+        if (kontakty[i].imie == imie) {
+            cout << endl << "Id: " << kontakty[i].id;
+            cout << endl << "Imie: " << kontakty[i].imie;
+            cout << endl << "Nazwisko: " << kontakty[i].nazwisko;
+            cout << endl << "Email: " << kontakty[i].email;
+            cout << endl << "Numer telefonu: " << kontakty[i].numer;
+            cout << endl << "Adres zamieszkania: " << kontakty[i].adres << endl;
         }
     }
     cout << endl << endl;
 }
 
-void findWithLastName(vector<Contact> contacts) {
-    string lastName;
+void znajdzNazwisko(vector<Kontakt> kontakty) {
+    string nazwisko;
 
     cout << endl << "WYSZUKIWANIE KONTAKTOW PO NAZWISKU" << endl << endl;
     cout << "Wpisz nazwisko kontaktu, ktorego szukasz: ";
-    cin >> lastName;
+    cin >> nazwisko;
 
     system("cls");
-    cout << endl << "KONTAKTY ZAWIEAJACE PODANE NAZWISKO: " << lastName << endl << endl;
-    for (int i = 0; i < contacts.size(); i++) {
-        if (contacts[i].lastName == lastName) {
-            cout << endl << "Id: " << contacts[i].id;
-            cout << endl << "Imie: " << contacts[i].firstName;
-            cout << endl << "Nazwisko: " << contacts[i].lastName;
-            cout << endl << "Email: " << contacts[i].email;
-            cout << endl << "Numer telefonu: " << contacts[i].phoneNumber;
-            cout << endl << "Adres zamieszkania: " << contacts[i].address << endl;
+    cout << endl << "KONTAKTY ZAWIEAJACE PODANE NAZWISKO: " << nazwisko << endl << endl;
+    for (int i = 0; i < kontakty.size(); i++) {
+        if (kontakty[i].nazwisko == nazwisko) {
+            cout << endl << "Id: " << kontakty[i].id;
+            cout << endl << "Imie: " << kontakty[i].imie;
+            cout << endl << "Nazwisko: " << kontakty[i].nazwisko;
+            cout << endl << "Email: " << kontakty[i].email;
+            cout << endl << "Numer telefonu: " << kontakty[i].numer;
+            cout << endl << "Adres zamieszkania: " << kontakty[i].adres << endl;
         }
     }
     cout << endl << endl;
 }
 
-void saveWholeVectorAsFile(vector<Contact> contacts){
-    fstream fileWriter("ksiazkaAdresowa.txt", ios::in | ios::out | ios::trunc);
+void zapiszKontaktyDoPliku(vector<Kontakt> kontakty){
+    fstream fileWriter(nazwaPlikuAdresowego, ios::in | ios::out | ios::trunc);
 
     if (fileWriter.is_open()){
-        for (int i = 0; i < contacts.size(); i++){
-            fileWriter << contacts[i].id << "|";
-            fileWriter << contacts[i].firstName << "|";
-            fileWriter << contacts[i].lastName << "|";
-            fileWriter << contacts[i].email << "|";
-            fileWriter << contacts[i].phoneNumber << "|";
-            fileWriter << contacts[i].address << "|" << endl;
+        for (int i = 0; i < kontakty.size(); i++){
+            fileWriter << kontakty[i].id << "|";
+            fileWriter << kontakty[i].idUzytkownika << "|";
+            fileWriter << kontakty[i].imie << "|";
+            fileWriter << kontakty[i].nazwisko << "|";
+            fileWriter << kontakty[i].email << "|";
+            fileWriter << kontakty[i].numer << "|";
+            fileWriter << kontakty[i].adres << "|" << endl;
         }
         fileWriter.close();
     } else cout << "Pliku nie udalo sie odczytac.";
 }
 
-void removeById(vector<Contact> &contacts){
+void usunKontaktWPliku(int idKontaktu){
+    fstream fileWriterAdresaci(nazwaPlikuAdresowego, ios::in | ios::out | ios::app);
+    fstream fileWriterTymczasowy(nazwaPlikuTymczasowego, ios::in | ios::out | ios::trunc);
 
-    int indexToRemove = 0;
-    char removeContact;
+    string bufor;
+    int n;
+    int licznik = 1;
 
-    int idToRemove;
+    while(getline(fileWriterAdresaci, bufor, '|')){
+        bufor.erase(remove(bufor.begin(), bufor.end(), '\n'), bufor.end());
+        switch(licznik){
+        case 1:
+            if (to_string(idKontaktu) == bufor){
+                n = 6;
+                while (n > 0){
+                    getline(fileWriterAdresaci, bufor, '|');
+                    n--;
+                }
+                licznik = 0;
+            } else {
+                if (bufor != "\0"){
+                    fileWriterTymczasowy << bufor << "|";
+                }
+            }
+            break;
+        case 2:
+            fileWriterTymczasowy << bufor << "|";
+            break;
+        case 3:
+            fileWriterTymczasowy << bufor << "|";
+            break;
+        case 4:
+            fileWriterTymczasowy << bufor << "|";
+            break;
+        case 5:
+            fileWriterTymczasowy << bufor << "|";
+            break;
+        case 6:
+            fileWriterTymczasowy << bufor << "|";
+            break;
+        case 7:
+            fileWriterTymczasowy << bufor << "|" << endl;
+            licznik = 0;
+            break;
+        }
+        licznik++;
+    }
+
+    fileWriterTymczasowy.close();
+    fileWriterAdresaci.close();
+
+    char charPlikAdresowy[nazwaPlikuAdresowego.size() + 1];
+    strcpy(charPlikAdresowy, nazwaPlikuAdresowego.c_str());
+
+    char charPlikTymczasowy[nazwaPlikuTymczasowego.size() + 1];
+    strcpy(charPlikTymczasowy, nazwaPlikuTymczasowego.c_str());
+
+    int rezultatUsuwania = remove(charPlikAdresowy);
+    if (rezultatUsuwania == 0){
+        rename(charPlikTymczasowy, charPlikAdresowy);
+    }
+}
+
+void usunKontakt(vector<Kontakt> &kontakty){
+
+    int indeksDoUsuniecia = 0;
+    char potwierdzenie;
+
+    int idKontaktu;
 
     cout << endl << "USUWANIE KONTAKTU O PODANYM ID" << endl << endl;
     cout << "Podaj id kontaktu, ktory chcesz usunac: ";
-    cin >> idToRemove;
+    cin >> idKontaktu;
 
-    for (int i = 0; i < contacts.size(); i++){
-        if (contacts[i].id == idToRemove){
-            indexToRemove = i;
+    for (int i = 0; i < kontakty.size(); i++){
+        if (kontakty[i].id == idKontaktu){
+            indeksDoUsuniecia = i;
         }
     }
 
     cout << "Potwierdz chec usuniecia tego kontaktu poprzez wcisniecie litery t: ";
-    cin >> removeContact;
-    if(removeContact == 't'){
-        contacts.erase(contacts.begin() + indexToRemove);
-        saveWholeVectorAsFile(contacts);
+    cin >> potwierdzenie;
+    if(potwierdzenie == 't'){
+        kontakty.erase(kontakty.begin() + indeksDoUsuniecia);
+        usunKontaktWPliku(idKontaktu);
     }
 
     system("cls");
 }
 
-void readFileToVector(vector<Contact> &contacts) {
-    fstream fileWriter("ksiazkaAdresowa.txt", ios::in | ios::out | ios::app);
+vector<Kontakt> zaladujKontakty() {
+    fstream fileWriter(nazwaPlikuAdresowego, ios::in | ios::out | ios::app);
 
-    string line;
-    Contact contact;
+    string bufor;
+    int najwiekszeId = 0;
+    Kontakt kontakt;
+    vector<Kontakt> kontakty;
 
-    int counter = 1;
+    int licznik = 1;
 
-    while(getline(fileWriter, line, '|')){
-        line.erase(remove(line.begin(), line.end(), '\n'), line.end());
-        switch(counter){
+    while(getline(fileWriter, bufor, '|')){
+        bufor.erase(remove(bufor.begin(), bufor.end(), '\n'), bufor.end());
+        switch(licznik){
         case 1:
-            contact.id = atoi(line.c_str());
+            kontakt.id = atoi(bufor.c_str());
+            if (kontakt.id > najwiekszeId){
+                najwiekszeId = kontakt.id;
+            }
             break;
         case 2:
-            contact.firstName = line;
-            break;
+            if (atoi(bufor.c_str()) != idZalogowanegoUzytkownika){
+                int n = 5;
+                while (n > 0){
+                    getline(fileWriter, bufor, '|');
+                    n--;
+                }
+                licznik = 0;
+            } else {
+                kontakt.idUzytkownika = atoi(bufor.c_str());
+                break;
+            }
         case 3:
-            contact.lastName = line;
+            kontakt.imie = bufor;
             break;
         case 4:
-            contact.email = line;
+            kontakt.nazwisko = bufor;
             break;
         case 5:
-            contact.phoneNumber = line;
+            kontakt.email = bufor;
             break;
         case 6:
-            contact.address = line;
-            contacts.push_back(contact);
-            counter = 0;
+            kontakt.numer = bufor;
+            break;
+        case 7:
+            kontakt.adres = bufor;
+            kontakty.push_back(kontakt);
+            licznik = 0;
             break;
         }
-        counter++;
+        licznik++;
+    }
+
+    iteratorAdresatow = najwiekszeId + 1;
+    return kontakty;
+}
+
+void edytujKontaktWPliku(int idDoEdycji, char opcja, string noweDane, vector<Kontakt> &kontakty){
+
+    fstream fileWriterAdresaci(nazwaPlikuAdresowego, ios::in | ios::out | ios::app);
+    fstream fileWriterTymczasowy(nazwaPlikuTymczasowego, ios::in | ios::out | ios::trunc);
+
+    string bufor;
+    Kontakt kontakt;
+    int n;
+    int licznik = 1;
+
+    while(getline(fileWriterAdresaci, bufor, '|')){
+        bufor.erase(remove(bufor.begin(), bufor.end(), '\n'), bufor.end());
+        switch(licznik){
+        case 1:
+            if (to_string(idDoEdycji) == bufor){
+                kontakt.id = atoi(bufor.c_str());
+                getline(fileWriterAdresaci, bufor, '|');
+                kontakt.idUzytkownika = atoi(bufor.c_str());
+                getline(fileWriterAdresaci, bufor, '|');
+                kontakt.imie = bufor;
+                getline(fileWriterAdresaci, bufor, '|');
+                kontakt.nazwisko = bufor;
+                getline(fileWriterAdresaci, bufor, '|');
+                kontakt.email = bufor;
+                getline(fileWriterAdresaci, bufor, '|');
+                kontakt.numer = bufor;
+                getline(fileWriterAdresaci, bufor, '|');
+                kontakt.adres = bufor;
+
+                switch (opcja){
+                case '1':
+                    kontakt.imie = noweDane;
+                    break;
+                case '2':
+                    kontakt.nazwisko = noweDane;
+                    break;
+                case '3':
+                    kontakt.email = noweDane;
+                    break;
+                case '4':
+                    kontakt.numer = noweDane;
+                    break;
+                case '5':
+                    kontakt.adres = noweDane;
+                    break;
+                }
+
+                if (fileWriterTymczasowy.is_open()) {
+                    fileWriterTymczasowy << to_string(kontakt.id) << '|';
+                    fileWriterTymczasowy << to_string(kontakt.idUzytkownika) << '|';
+                    fileWriterTymczasowy << kontakt.imie << '|';
+                    fileWriterTymczasowy << kontakt.nazwisko << '|';
+                    fileWriterTymczasowy << kontakt.email << '|';
+                    fileWriterTymczasowy << kontakt.numer << '|';
+                    fileWriterTymczasowy << kontakt.adres << '|' << endl;
+                } else cout << "Pliku nie udalo sie odczytac.";
+
+                licznik = 0;
+
+            } else {
+                if (bufor != "\0"){
+                    fileWriterTymczasowy << bufor << "|";
+                }
+            }
+            break;
+        case 2:
+            fileWriterTymczasowy << bufor << "|";
+            break;
+        case 3:
+            fileWriterTymczasowy << bufor << "|";
+            break;
+        case 4:
+            fileWriterTymczasowy << bufor << "|";
+            break;
+        case 5:
+            fileWriterTymczasowy << bufor << "|";
+            break;
+        case 6:
+            fileWriterTymczasowy << bufor << "|";
+            break;
+        case 7:
+            fileWriterTymczasowy << bufor << "|" << endl;
+            licznik = 0;
+            break;
+        }
+        licznik++;
+    }
+
+    fileWriterTymczasowy.close();
+    fileWriterAdresaci.close();
+
+    char charPlikAdresowy[nazwaPlikuAdresowego.size() + 1];
+    strcpy(charPlikAdresowy, nazwaPlikuAdresowego.c_str());
+
+    char charPlikTymczasowy[nazwaPlikuTymczasowego.size() + 1];
+    strcpy(charPlikTymczasowy, nazwaPlikuTymczasowego.c_str());
+
+    int rezultatUsuwania = remove(charPlikAdresowy);
+    if (rezultatUsuwania == 0){
+        rename(charPlikTymczasowy, charPlikAdresowy);
+        kontakty = zaladujKontakty();
     }
 }
 
-void editContact(int idToEdit, char editOption, string input, vector<Contact> &contacts){
-    Contact *contact;
+void menuEdycjiKontaktu(vector<Kontakt> &kontakty){
 
-    for (int i = 0; i < contacts.size(); i++){
-        if (contacts[i].id == idToEdit){
-            contact = &contacts[i];
-        }
-    }
-
-    switch (editOption){
-        case '1':
-            contact->firstName = input;
-            break;
-        case '2':
-            contact->lastName = input;
-            break;
-        case '3':
-            contact->email = input;
-            break;
-        case '4':
-            contact->phoneNumber = input;
-            break;
-        case '5':
-            contact->address = input;
-            break;
-    }
-
-    saveWholeVectorAsFile(contacts);
-}
-
-void editContactMenu(vector<Contact> &contacts){
-
-    int idToEdit;
-    char editOption;
-    string input;
+    int idDoEdycji;
+    char opcja;
+    string noweDane;
 
     cout << endl << "EDYCJA KONTAKTU CZ 1" << endl << endl;
     cout << endl << "1. Wybierz id uzytkownika do edycji" << endl;
     cout << endl << "Twoj wybor: ";
 
-    cin >> idToEdit;
+    cin >> idDoEdycji;
 
     cout << endl << "EDYCJA KONTAKTU CZ 2" << endl << endl;
     cout << "1. Zmien imie" << endl;
@@ -258,89 +419,285 @@ void editContactMenu(vector<Contact> &contacts){
     cout << "6. Powrot do menu" << endl;
     cout << endl << "Twoj wybor: ";
 
-    cin >> editOption;
+    cin >> opcja;
 
     cout << endl << "EDYCJA KONTAKTU CZ 3" << endl << endl;
     cout << "1. Wprowadz ";
 
-    switch (editOption){
+    switch (opcja){
         case '1':
             cout << "nowe imie\nTwoj wybor: ";
-            cin >> input;
+            cin >> noweDane;
             break;
         case '2':
             cout << "nowe nazwisko\nTwoj wybor: ";
-            cin >> input;
+            cin >> noweDane;
             break;
         case '3':
             cout << "nowy adres email\nTwoj wybor: ";
-            cin >> input;
+            cin >> noweDane;
             break;
         case '4':
             cout << "nowy telefon\nTwoj wybor: ";
-            cin >> input;
+            cin.sync();
+            getline(cin, noweDane);
             break;
         case '5':
             cout << "nowy adres\nTwoj wybor: ";
-            cin >> input;
+            cin.sync();
+            getline(cin, noweDane);
             break;
     }
 
-    editContact(idToEdit, editOption, input, contacts);
+    edytujKontaktWPliku(idDoEdycji, opcja, noweDane, kontakty);
 }
 
-void showMenu() {
-    cout << endl << "KSIAZKA ADRESOWA" << endl << endl;
-    cout << "1. Dodaj adresata" << endl;
-    cout << "2. Wyszukaj po imieniu" << endl;
-    cout << "3. Wyszukaj po nazwisku" << endl;
-    cout << "4. Wyswietl wszystkich adresatow" << endl;
-    cout << "5. Usun adresata" << endl;
-    cout << "6. Edytuj adresata" << endl;
-    cout << "7. Zakoncz program" << endl;
-    cout << endl << "Twoj wybor: ";
+void zmianaHasla(){
+    string stareHaslo, noweHaslo;
+
+    cout << endl << "ZMIANA HASLA" << endl << endl;
+    cout << endl << "Wprowadz nowe haslo: ";
+    cin >> noweHaslo;
+
+    fstream fileWriterUzytkownicy(nazwaPlikuUzytkownikow, ios::in | ios::out | ios::app);
+    fstream fileWriterTymczasowy(nazwaPlikuTymczasowego, ios::in | ios::out | ios::trunc);
+
+    string bufor;
+    int n;
+    int licznik = 1;
+
+    while(getline(fileWriterUzytkownicy, bufor, '|')){
+        bufor.erase(remove(bufor.begin(), bufor.end(), '\n'), bufor.end());
+        switch(licznik){
+        case 1:
+            if (to_string(idZalogowanegoUzytkownika) == bufor){
+                fileWriterTymczasowy << to_string(idZalogowanegoUzytkownika) << '|';
+                getline(fileWriterUzytkownicy, bufor, '|');
+                fileWriterTymczasowy << bufor << '|';
+                getline(fileWriterUzytkownicy, bufor, '|');
+                fileWriterTymczasowy << noweHaslo << '|' << endl;
+                licznik = 0;
+            } else {
+                if (bufor != "\0"){
+                    fileWriterTymczasowy << bufor << "|";
+                }
+            }
+            break;
+        case 2:
+            fileWriterTymczasowy << bufor << "|";
+            break;
+        case 3:
+            fileWriterTymczasowy << bufor << "|" << endl;
+            licznik = 0;
+            break;
+        }
+        licznik++;
+    }
+
+    fileWriterTymczasowy.close();
+    fileWriterUzytkownicy.close();
+
+    char charPlikUzytkownicy[nazwaPlikuUzytkownikow.size() + 1];
+    strcpy(charPlikUzytkownicy, nazwaPlikuUzytkownikow.c_str());
+
+    char charPlikTymczasowy[nazwaPlikuTymczasowego.size() + 1];
+    strcpy(charPlikTymczasowy, nazwaPlikuTymczasowego.c_str());
+
+    int rezultatUsuwania = remove(charPlikUzytkownicy);
+    if (rezultatUsuwania == 0){
+        rename(charPlikTymczasowy, charPlikUzytkownicy);
+    }
+    cout << "Haslo zmienione pomyslnie!";
 }
 
-int main() {
-    system("cls");
-    vector<Contact> contacts;
 
-    readFileToVector(contacts);
-    idIterator = findMaxId(contacts);
+void menuKsiazkiAdresowej() {
+    vector<Kontakt> kontakty = zaladujKontakty();
 
-    char option, editOption;
-    int editId;
+    char wybor;
+    bool petla = true;
 
-    while (1) {
-        showMenu();
-        cin >> option;
+    while (petla) {
+        cout << endl << "KSIAZKA ADRESOWA" << endl << endl;
+        cout << "1. Dodaj adresata" << endl;
+        cout << "2. Wyszukaj po imieniu" << endl;
+        cout << "3. Wyszukaj po nazwisku" << endl;
+        cout << "4. Wyswietl wszystkich adresatow" << endl;
+        cout << "5. Usun adresata" << endl;
+        cout << "6. Edytuj adresata" << endl;
+        cout << "7. Zmien haslo" << endl;
+        cout << "8. Wyloguj" << endl;
+        cout << endl << "Twoj wybor: ";
+        cin >> wybor;
         system("cls");
 
-        switch(option) {
+        switch(wybor) {
         case '1':
-            createContact(contacts);
+            stworzKontakt(kontakty);
             break;
         case '2':
-            findWithFirstName(contacts);
+            znajdzImie(kontakty);
             break;
         case '3':
-            findWithLastName(contacts);
+            znajdzNazwisko(kontakty);
             break;
         case '4':
-            showContacts(contacts);
+            wyswietlKontakty(kontakty);
             break;
         case '5':
-            removeById(contacts);
+            usunKontakt(kontakty);
             break;
         case '6':
-            editContactMenu(contacts);
+            menuEdycjiKontaktu(kontakty);
             break;
         case '7':
+            zmianaHasla();
+            break;
+        case '8':
+            idZalogowanegoUzytkownika = -1;
+            petla = false;
+            break;
+        }
+
+    }
+}
+
+vector<Uzytkownik> zaladujUzytkownikow(){
+    fstream fileWriter(nazwaPlikuUzytkownikow, ios::in | ios::out | ios::app);
+
+    string bufor;
+    int najwiekszeId = 0;
+    Uzytkownik uzytkownik;
+    vector<Uzytkownik> uzytkownicy;
+
+    int licznik = 1;
+
+    while(getline(fileWriter, bufor, '|')){
+        bufor.erase(remove(bufor.begin(), bufor.end(), '\n'), bufor.end());
+        switch(licznik){
+        case 1:
+            uzytkownik.id = atoi(bufor.c_str());
+            if (uzytkownik.id > najwiekszeId){
+                najwiekszeId = uzytkownik.id;
+            }
+            break;
+        case 2:
+            uzytkownik.nazwa = bufor;
+            break;
+        case 3:
+            uzytkownik.haslo = bufor;
+            licznik = 0;
+            uzytkownicy.push_back(uzytkownik);
+            break;
+        }
+        licznik++;
+    }
+
+    iteratorUzytkownikow = najwiekszeId + 1;
+    return uzytkownicy;
+}
+
+bool rejestracja(vector<Uzytkownik> &uzytkownicy){
+    string nazwa, haslo;
+    bool poprawnoscLoginu = false;
+
+    system("cls");
+    while (poprawnoscLoginu != true){
+        cout << "Podaj nazwe uzytkownika: ";
+        cin >> nazwa;
+
+        poprawnoscLoginu = true;
+        for (int i = 0; i < uzytkownicy.size(); i++){
+            if(uzytkownicy[i].nazwa == nazwa){
+                cout << "Podana nazwa jest juz w uzyciu\n";
+                poprawnoscLoginu = false;
+            }
+        }
+    }
+
+    cout << "Podaj haslo: ";
+    cin >> haslo;
+    Uzytkownik nowy;
+
+    nowy.id = iteratorUzytkownikow;
+    nowy.nazwa = nazwa;
+    nowy.haslo = haslo;
+
+    fstream fileWriter(nazwaPlikuUzytkownikow, ios::in | ios::out | ios::app);
+
+    if (fileWriter.is_open()) {
+        fileWriter << to_string(nowy.id) << '|';
+        fileWriter << nowy.nazwa << '|';
+        fileWriter << nowy.haslo << '|' << endl;
+        fileWriter.close();
+
+        uzytkownicy.push_back(nowy);
+        iteratorUzytkownikow++;
+    } else {
+        cout << "Pliku [" + nazwaPlikuUzytkownikow + "] nie udalo sie odczytac.";
+        return false;
+    }
+
+    cout<<"Konto uzytkownika zostalo pomyslnie utworzone"<<endl;
+    return true;
+}
+
+bool logowanie(vector<Uzytkownik> &uzytkownicy){
+    string nazwa, haslo;
+    system("cls");
+
+    int proba = 0;
+    while(proba < 3){
+        cout << "Podaj nazwe uzytkownika: ";
+        cin >> nazwa;
+        cout << "Podaj haslo: ";
+        cin >> haslo;
+
+        for (int i = 0; i < uzytkownicy.size(); i++){
+            if ((uzytkownicy[i].nazwa == nazwa) && (uzytkownicy[i].haslo == haslo)){
+                idZalogowanegoUzytkownika = uzytkownicy[i].id;
+                cout << "Logowanie zakonczone pomyslnie\n";
+                return true;
+            }
+        }
+        cout << "Niepoprawne dane logowania. Sprobuj ponownie\n";
+        proba++;
+    }
+    cout << "Wpisales bledne haslo 3 razy!. Operacja zakonczona niepowodzeniem";
+    return false;
+}
+
+int main()
+{
+    vector<Uzytkownik> uzytkownicy = zaladujUzytkownikow();
+
+    bool powodzenieRejestracji;
+    bool powodzenieLogowania = false;
+
+    char wybor;
+
+    while (1) {
+        cout << endl << "MENU REJESTRACJI/LOGOWANIA" << endl << endl;
+        cout << "1. Rejestracja"<<endl;
+        cout << "2. Logowanie"<<endl;
+        cout << "9. Zakoncz program"<<endl;
+        cout << endl << "Twoj wybor: ";
+        cin >> wybor;
+        system("cls");
+
+        switch(wybor) {
+        case '1':
+            powodzenieRejestracji = rejestracja(uzytkownicy);
+            break;
+        case '2':
+            powodzenieLogowania = logowanie(uzytkownicy);
+            if ((powodzenieLogowania == true) && (idZalogowanegoUzytkownika >= 0)){
+                menuKsiazkiAdresowej();
+            }
+            break;
+        case '9':
             exit(0);
             break;
         }
     }
-
-    system("pause");
-    return 0;
 }
